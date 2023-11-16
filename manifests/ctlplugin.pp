@@ -15,9 +15,6 @@ define supervisord::ctlplugin(
 ) {
   include supervisord
 
-  # parameter validation
-  validate_string($ctl_factory)
-
   concat::fragment { "ctlplugin:${name}":
     target  => $supervisord::config_file,
     content => template('supervisord/conf/ctlplugin.erb'),

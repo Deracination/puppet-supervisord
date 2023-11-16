@@ -88,41 +88,9 @@ class supervisord(
 
 ) inherits supervisord::params {
 
-  validate_bool($install_pip)
-  validate_bool($install_init)
-  validate_bool($nodaemon)
-  validate_bool($unix_socket)
-  validate_bool($unix_auth)
-  validate_bool($inet_server)
-  validate_bool($inet_auth)
-  validate_bool($strip_ansi)
-  validate_bool($nocleanup)
-
-  validate_hash($eventlisteners)
-  validate_hash($fcgi_programs)
-  validate_hash($groups)
-  validate_hash($programs)
-
-  validate_absolute_path($config_include)
-  validate_absolute_path($log_path)
-  validate_absolute_path($run_path)
-  if $childlogdir { validate_absolute_path($childlogdir) }
-  if $directory { validate_absolute_path($directory) }
 
   $log_levels = ['^critical$', '^error$', '^warn$', '^info$', '^debug$', '^trace$', '^blather$']
-  validate_re($log_level, $log_levels, "invalid log_level: ${log_level}")
-  validate_re($logfile_maxbytes,'^[0-9]*(?:KB|MB|GB)?', "invalid logfile_maxbytes: ${$logfile_maxbytes}")
-  validate_re($umask, '^0[0-7][0-7]$', "invalid umask: ${umask}.")
-  validate_re($unix_socket_mode, '^[0-7][0-7][0-7][0-7]$', "invalid unix_socket_mode: ${unix_socket_mode}")
-  validate_re($ctl_socket, ['^unix$', '^inet$'], "invalid ctl_socket: ${ctl_socket}")
-  validate_re($config_file_mode, '^0[0-7][0-7][0-7]$')
-  if $pip_proxy { validate_re($pip_proxy, ['^https?:\/\/.*$'], "invalid pip_proxy: ${pip_proxy}") }
-
-  if ! is_integer($logfile_backups) { fail("invalid logfile_backups: ${logfile_backups}.")}
-  if ! is_integer($minfds) { fail("invalid minfds: ${minfds}.")}
-  if ! is_integer($minprocs) { fail("invalid minprocs: ${minprocs}.")}
-  if ! is_integer($inet_server_port) { fail("invalid inet_server_port: ${inet_server_port}.")}
-
+  
   if $unix_socket and $inet_server {
     $use_ctl_socket = $ctl_socket
   }
@@ -146,16 +114,6 @@ class supervisord(
     $ctl_password  = $supervisord::inet_password
   }
 
-  if $unix_auth {
-    validate_string($unix_username)
-    validate_string($unix_password)
-  }
-
-  if $inet_auth {
-    validate_string($inet_username)
-    validate_string($inet_password)
-  }
-
   # Handle deprecated $environment variable
   if $environment { notify {'[supervisord] *** DEPRECATED WARNING ***: $global_environment has replaced $environment':}}
   $_global_environment = $global_environment ? {
@@ -164,17 +122,14 @@ class supervisord(
   }
 
   if $env_var {
-    validate_hash($env_var)
     $env_hash = hiera($env_var)
     $env_string = hash2csv($env_hash)
   }
   elsif $_global_environment {
-    validate_hash($_global_environment)
     $env_string = hash2csv($_global_environment)
   }
 
   if $config_dirs {
-    validate_array($config_dirs)
     $config_include_string = join($config_dirs, ' ')
   }
   else {
