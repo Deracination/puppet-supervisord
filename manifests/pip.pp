@@ -8,7 +8,7 @@ class supervisord::pip inherits supervisord {
     path => '/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin'
   }
 
-  ensure_packages('curl')
+  stdlib::ensure_packages('curl')
 
   exec { 'install_setuptools':
     command => "curl ${supervisord::setuptools_url} | python",

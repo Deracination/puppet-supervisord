@@ -16,19 +16,17 @@ class supervisord::params {
           $executable_path        = '/usr/local/bin'
         }
         default: {
-          case $::operatingsystemmajrelease {
-            '7': {
+          if($::operatingsystemmajrelease >= '7') {
               $init_type     = 'systemd'
               $init_script   = '/etc/systemd/system/supervisord.service'
               $init_defaults = false
-            }
-            default: {
+              $executable_path = '/usr/local/bin'
+          } else {
               $init_type     = 'init'
               $init_script   = '/etc/init.d/supervisord'
               $init_defaults = '/etc/sysconfig/supervisord'
-            }
+              $executable_path = '/usr/bin'
           }
-          $executable_path = '/usr/bin'
         }
       }
     }
